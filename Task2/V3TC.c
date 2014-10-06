@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+//========================================================
+// Variant 3. Task C
+//
 
 int main () {
     int n;

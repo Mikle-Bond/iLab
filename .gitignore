@@ -218,6 +218,9 @@ pip-log.txt
 ####################
 #User section
 #===================
+
+.tgitconfig
+
 #C trash
 
 # Object files
