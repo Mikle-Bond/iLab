@@ -3,8 +3,8 @@
 //
 int v1td () {
     int n;
-    long a[100], b[100];
-    long ToFuture, FromPrev;
+    unsigned long a[100], b[100];
+    unsigned long ToFuture, FromPrev;
 
     int i,j;
 
@@ -26,7 +26,7 @@ int v1td () {
         //=================================================
         // Printing current line:
         while (a[j]!=0) {
-            printf("%d ",a[j]);
+            printf("%lu ",a[j]);
             j+=1;
         }
         printf("\n");
