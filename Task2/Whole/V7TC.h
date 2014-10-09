@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <assert.h>
 //=========================================================
 // Variant 7. Task C.
 //
@@ -84,11 +82,6 @@ int v7tc () {
     free(a);
     free(b);
 
-    return 0;
-}
-
-int main () {
-    v7tc();
     return 0;
 }
 

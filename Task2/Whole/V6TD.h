@@ -1,10 +1,7 @@
-#include <stdio.h>
-#include <assert.h>
-
 //=========================================================
 // Variant 6. Task D.
 //
-int v2td () {
+int v6td () {
     int n=0;
     int i=0, j=0;
     scanf("%d",&n);
@@ -49,10 +46,3 @@ int v2td () {
     free(q);
     return 0;
 }
-
-
-int main () {
-    v2td();
-    return 0;
-}
-
