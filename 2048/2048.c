@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
         //directional keys
 #define key_left    0x25
@@ -12,11 +13,15 @@
 #define START_POS 0
 
 typedef unsigned short int el_t;
-int Arrow_UpDown = 1;
-int Arrow_LeftRight = 1;
+int Arrow_Up = 1;
+int Arrow_Down = 1;
+int Arrow_Left = 1;
+int Arrow_Right = 1;
 
 void logo();
 int game_start();
+int ArrOk(el_t**, int*);
+void Plce_Rand(el_t**, int*);
 
 int main () {
     logo();
@@ -195,6 +200,7 @@ void redraw(el_t **a) {
 }
 
 int game_start() {
+    int i=0;
     first_draw();
     el_t GameMap[4][4]={\
     {0,0,0,0},\
@@ -203,50 +209,97 @@ int game_start() {
     {0,0,0,0}};    // [column][row];
     int Counter=0;
     int c='\0';
-    Place_rand(GameMap, Counter);
+    Place_rand(GameMap, &Counter);
     // Place_rand(&GameMap, Counter);
-    while (ArrOk(GameMap,Counter)) {
+    while (ArrOk(GameMap,&Counter)) {
         do {
             c=getch();
-            if ((Arrow_UpDown) && (c==key_down || c==key_up)) break;
-            if ((Arrow_LeftRight) && (c==key_left || c==key_right)) break;
+            if ((Arrow_Up) && (c==key_up)) break;
+            if ((Arrow_Down) && (c==key_down)) break;
+            if ((Arrow_Left) && (c==key_left)) break;
+            if ((Arrow_Right) && (c==key_right)) break;
         } while (1);
         switch (c) {
-            if (Arrow_UpDown) { case key_down:
-                slide_line(&GameMap[1][1],&GameMap[1][2],&GameMap[1][3],&GameMap[1][4]);
-                slide_line(&GameMap[2][1],&GameMap[2][2],&GameMap[2][3],&GameMap[2][4]);
-                slide_line(&GameMap[3][1],&GameMap[3][2],&GameMap[3][3],&GameMap[3][4]);
-                slide_line(&GameMap[4][1],&GameMap[4][2],&GameMap[4][3],&GameMap[4][4]);
+            case key_down:
+                for (i=0; i<4; i++)
+                    slide_line(&GameMap[i][0],&GameMap[i][1],&GameMap[i][2],&GameMap[i][3]);
                 break;
-            }
-            if (Arrow_UpDown) { case key_up:
-                slide_line(&GameMap[1][4],&GameMap[1][3],&GameMap[1][2],&GameMap[1][1]);
-                slide_line(&GameMap[2][4],&GameMap[2][3],&GameMap[2][2],&GameMap[2][1]);
-                slide_line(&GameMap[3][4],&GameMap[3][3],&GameMap[3][2],&GameMap[3][1]);
-                slide_line(&GameMap[4][4],&GameMap[4][3],&GameMap[4][2],&GameMap[4][1]);
+            case key_up:
+                for (i=0; i<4; i++)
+                    slide_line(&GameMap[i][3],&GameMap[i][2],&GameMap[i][1],&GameMap[i][4]);
                 break;
-            }
-            if (Arrow_LeftRight) { case key_right:
-                slide_line(&GameMap[1][1],&GameMap[2][1],&GameMap[3][1],&GameMap[4][1]);
-                slide_line(&GameMap[1][2],&GameMap[2][2],&GameMap[3][2],&GameMap[4][2]);
-                slide_line(&GameMap[1][3],&GameMap[2][3],&GameMap[3][3],&GameMap[4][3]);
-                slide_line(&GameMap[1][4],&GameMap[2][4],&GameMap[3][4],&GameMap[4][4]);
+            case key_right:
+                for (i=0; i<4; i++)
+                    slide_line(&GameMap[0][i],&GameMap[1][i],&GameMap[2][i],&GameMap[3][i]);
                 break;
-            }
-            if (Arrow_LeftRight) { case key_left:
-                slide_line(&GameMap[4][1],&GameMap[3][1],&GameMap[2][1],&GameMap[1][1]);
-                slide_line(&GameMap[4][2],&GameMap[3][2],&GameMap[2][2],&GameMap[1][2]);
-                slide_line(&GameMap[4][3],&GameMap[3][3],&GameMap[2][3],&GameMap[1][3]);
-                slide_line(&GameMap[4][4],&GameMap[3][4],&GameMap[2][4],&GameMap[1][4]);
+            case key_left:
+                for (i=0; i<4; i++)
+                    slide_line(&GameMap[3][i],&GameMap[2][i],&GameMap[1][i],&GameMap[0][i]);
                 break;
-            }
         }
         redraw(GameMap);
     }
-
 }
 
-int ArrOk(el_t *a, int c) {
+int ArrOk(el_t **a, int *c) {
+    int i=0, j=0;
     Place_Rand(a,c);
+    if (*c==16) {
+        Arrow_Left=0;
+        Arrow_Right=0;
+        Arrow_Up=0;
+        Arrow_Down=0;
+        for (i=0; i<4; i++) {
+            for (j=0; j<4; j++) {
+                if (a[i][j]!=0) {
+                    if (not(Arrow_Left)&&(i!=0)) {
+                        if ((a[i-1][j]==0)||(a[i][j]==a[i-1][j])) {
+                            Arrow_Left=1;
+                        }
+                    }
+                    if (not(Arrow_Right)&&(i!=3)) {
+                        if ((a[i+1][j]==0)||(a[i][j]==a[i+1][j])) {
+                            Arrow_Right=1;
+                        }
+                    }
+                    if (not(Arrow_Up)&&(j!=0)) {
+                        if ((a[i][j-1]==0)||(a[i][j]==a[i][j-1])) {
+                            Arrow_Up=1;
+                        }
+                    }
+                    if (not(Arrow_Down)&&(j!=3)) {
+                        if ((a[i][j+1]==0)||(a[i][j]==a[i][j+1])) {
+                            Arrow_Down=1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (Arrow_Down+Arrow_Left+Arrow_Right+Arrow_Up == 0) {
+        return 0;
+    } else {
+        return 1;
+    }
+}
 
+void Plce_Rand(el_t **a, int *c) {
+    el_t target;
+    time_t t;
+    int i=0, j=0;
+    srand((unsigned) time(&t));
+    if (rand()%7 == 3) {
+        target=4;
+    } else {
+        target=2;
+    }
+    while (1) {
+        i=rand()%4;
+        j=rand()%4;
+        if (a[i][j]==0) {
+            a[i][j]=target;
+            break;
+        }
+    }
+    *c+=1;
 }
