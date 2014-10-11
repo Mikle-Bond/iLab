@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h>
+
 
         //directional keys
 #define key_left    0x25
@@ -19,9 +21,10 @@ int Arrow_Left = 1;
 int Arrow_Right = 1;
 
 void logo();
+void Place_Rand(el_t**, int*);
 int game_start();
 int ArrOk(el_t**, int*);
-void Plce_Rand(el_t**, int*);
+void GoToXY(int, int);
 
 int main () {
     logo();
@@ -194,7 +197,7 @@ void slide_line(el_t *a, el_t *b, el_t *c, el_t *d) {
 void redraw(el_t **a) {
     int i=0;
     for (i=0; i<4; i++) {
-        gotoxy(0,START_POS+i*4);
+        GoToXY(0,START_POS+i*4);
         print_string(a[1][i],a[2][i],a[3][i],a[4][i]);
     }
 }
@@ -209,7 +212,7 @@ int game_start() {
     {0,0,0,0}};    // [column][row];
     int Counter=0;
     int c='\0';
-    Place_rand(GameMap, &Counter);
+    Place_Rand(GameMap, &Counter);
     // Place_rand(&GameMap, Counter);
     while (ArrOk(GameMap,&Counter)) {
         do {
@@ -252,22 +255,22 @@ int ArrOk(el_t **a, int *c) {
         for (i=0; i<4; i++) {
             for (j=0; j<4; j++) {
                 if (a[i][j]!=0) {
-                    if (not(Arrow_Left)&&(i!=0)) {
+                    if ((!Arrow_Left)&&(i!=0)) {
                         if ((a[i-1][j]==0)||(a[i][j]==a[i-1][j])) {
                             Arrow_Left=1;
                         }
                     }
-                    if (not(Arrow_Right)&&(i!=3)) {
+                    if ((!Arrow_Right)&&(i!=3)) {
                         if ((a[i+1][j]==0)||(a[i][j]==a[i+1][j])) {
                             Arrow_Right=1;
                         }
                     }
-                    if (not(Arrow_Up)&&(j!=0)) {
+                    if ((!Arrow_Up)&&(j!=0)) {
                         if ((a[i][j-1]==0)||(a[i][j]==a[i][j-1])) {
                             Arrow_Up=1;
                         }
                     }
-                    if (not(Arrow_Down)&&(j!=3)) {
+                    if ((!Arrow_Down)&&(j!=3)) {
                         if ((a[i][j+1]==0)||(a[i][j]==a[i][j+1])) {
                             Arrow_Down=1;
                         }
@@ -283,7 +286,7 @@ int ArrOk(el_t **a, int *c) {
     }
 }
 
-void Plce_Rand(el_t **a, int *c) {
+void Place_Rand(el_t **a, int *c) {
     el_t target;
     time_t t;
     int i=0, j=0;
@@ -302,4 +305,26 @@ void Plce_Rand(el_t **a, int *c) {
         }
     }
     *c+=1;
+}
+
+void GoToXY(int column, int line) {
+    // Create a COORD structure and fill in its members.
+    // This specifies the new position of the cursor that we will set.
+    COORD coord;
+    coord.X = column;
+    coord.Y = line;
+
+    // Obtain a handle to the console screen buffer.
+    // (You're just using the standard console, so you can use STD_OUTPUT_HANDLE
+    // in conjunction with the GetStdHandle() to retrieve the handle.)
+    // Note that because it is a standard handle, we don't need to close it.
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    // Finally, call the SetConsoleCursorPosition function.
+    if (!SetConsoleCursorPosition(hConsole, coord))
+    {
+        // Uh-oh! The function call failed, so you need to handle the error.
+        // You can call GetLastError() to get a more specific error code.
+        // ...
+    }
 }
