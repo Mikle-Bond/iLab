@@ -4,15 +4,23 @@
 
 
         //directional keys
+/*
 #define key_left    0x25
 #define key_up      0x26
 #define key_right   0x27
 #define key_down    0x28
+*/
+#define key_left    75
+#define key_up      72
+#define key_right   77
+#define key_down    80
+
+
         // to quit
 #define key_escape  0x1B
         // to make
 #define LBOR_ printf("     ")
-#define START_POS 0
+#define START_POS 2
 
 typedef unsigned short int el_t;
 int Arrow_Up = 1;
@@ -21,9 +29,9 @@ int Arrow_Left = 1;
 int Arrow_Right = 1;
 
 void logo();
-void Place_Rand(el_t**, int*);
+void Place_Rand(el_t a[][4], int*);
 int game_start();
-int ArrOk(el_t**, int*);
+int ArrOk(el_t a[][4], int*);
 void GoToXY(int, int);
 
 int main () {
@@ -174,6 +182,9 @@ void first_draw() {
     for (i=1; i<=6; i++) printf("\xCD"); printf("\xBC\n");
 }
 
+//=========================================================
+
+
 void slide_line(el_t *a, el_t *b, el_t *c, el_t *d) {
     int i=0, j=0;
     el_t* x[4]={a,b,c,d};
@@ -194,11 +205,11 @@ void slide_line(el_t *a, el_t *b, el_t *c, el_t *d) {
 
 }
 
-void redraw(el_t **a) {
+void redraw(el_t a[][4]) {
     int i=0;
     for (i=0; i<4; i++) {
         GoToXY(0,START_POS+i*4);
-        print_string(a[1][i],a[2][i],a[3][i],a[4][i]);
+        LBOR_; print_string(a[0][i],a[1][i],a[2][i],a[3][i]);
     }
 }
 
@@ -216,11 +227,14 @@ int game_start() {
     // Place_rand(&GameMap, Counter);
     while (ArrOk(GameMap,&Counter)) {
         do {
-            c=getch();
-            if ((Arrow_Up) && (c==key_up)) break;
-            if ((Arrow_Down) && (c==key_down)) break;
-            if ((Arrow_Left) && (c==key_left)) break;
-            if ((Arrow_Right) && (c==key_right)) break;
+            if (getch()==224) {
+                c=getch();
+                printf("%d ",c);
+                if ((Arrow_Up) && (c==key_up)) break;
+                if ((Arrow_Down) && (c==key_down)) break;
+                if ((Arrow_Left) && (c==key_left)) break;
+                if ((Arrow_Right) && (c==key_right)) break;
+            }
         } while (1);
         switch (c) {
             case key_down:
@@ -244,7 +258,7 @@ int game_start() {
     }
 }
 
-int ArrOk(el_t **a, int *c) {
+int ArrOk(el_t a[][4], int *c) {
     int i=0, j=0;
     Place_Rand(a,c);
     if (*c==16) {
@@ -286,7 +300,7 @@ int ArrOk(el_t **a, int *c) {
     }
 }
 
-void Place_Rand(el_t **a, int *c) {
+void Place_Rand(el_t a[][4], int *c) {
     el_t target;
     time_t t;
     int i=0, j=0;
