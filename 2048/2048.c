@@ -200,6 +200,7 @@ void slide_line(el_t *a, el_t *b, el_t *c, el_t *d) {
                 *x[i]=*x[j];
                 *x[j]=0;
             }
+            // if (*x[i]!=0) then we will slide x[j] next time.
         }
     }
 
@@ -215,6 +216,7 @@ void redraw(el_t a[][4]) {
 
 int game_start() {
     int i=0;
+    system("cls");
     first_draw();
     el_t GameMap[4][4]={\
     {0,0,0,0},\
@@ -226,10 +228,12 @@ int game_start() {
     Place_Rand(GameMap, &Counter);
     // Place_rand(&GameMap, Counter);
     while (ArrOk(GameMap,&Counter)) {
+        redraw(GameMap);
         do {
             if (getch()==224) {
                 c=getch();
-                printf("%d ",c);
+                GoToXY(0,23);
+                printf("%d %d %d %d ",Arrow_Up, Arrow_Down, Arrow_Left, Arrow_Right);
                 if ((Arrow_Up) && (c==key_up)) break;
                 if ((Arrow_Down) && (c==key_down)) break;
                 if ((Arrow_Left) && (c==key_left)) break;
@@ -243,7 +247,7 @@ int game_start() {
                 break;
             case key_up:
                 for (i=0; i<4; i++)
-                    slide_line(&GameMap[i][3],&GameMap[i][2],&GameMap[i][1],&GameMap[i][4]);
+                    slide_line(&GameMap[i][3],&GameMap[i][2],&GameMap[i][1],&GameMap[i][0]);
                 break;
             case key_right:
                 for (i=0; i<4; i++)
@@ -254,40 +258,42 @@ int game_start() {
                     slide_line(&GameMap[3][i],&GameMap[2][i],&GameMap[1][i],&GameMap[0][i]);
                 break;
         }
-        redraw(GameMap);
     }
+    redraw(GameMap);
 }
 
 int ArrOk(el_t a[][4], int *c) {
     int i=0, j=0;
     Place_Rand(a,c);
-    if (*c==16) {
-        Arrow_Left=0;
-        Arrow_Right=0;
-        Arrow_Up=0;
-        Arrow_Down=0;
-        for (i=0; i<4; i++) {
-            for (j=0; j<4; j++) {
-                if (a[i][j]!=0) {
-                    if ((!Arrow_Left)&&(i!=0)) {
-                        if ((a[i-1][j]==0)||(a[i][j]==a[i-1][j])) {
-                            Arrow_Left=1;
-                        }
+    Arrow_Left=0;
+    Arrow_Right=0;
+    Arrow_Up=0;
+    Arrow_Down=0;
+    for (i=0; i<4; i++) {
+        for (j=0; j<4; j++) {
+            if (a[i][j]!=0) {
+                if ((!Arrow_Left)&&(i!=0)) {
+                    if ((a[i-1][j]==0)||(a[i][j]==a[i-1][j])) {
+                        Arrow_Left=1;
+                        printf("Left: i=%d j=%d ", i,j);
                     }
-                    if ((!Arrow_Right)&&(i!=3)) {
-                        if ((a[i+1][j]==0)||(a[i][j]==a[i+1][j])) {
-                            Arrow_Right=1;
-                        }
+                }
+                if ((!Arrow_Right)&&(i!=3)) {
+                    if ((a[i+1][j]==0)||(a[i][j]==a[i+1][j])) {
+                        Arrow_Right=1;
+                        printf("Right i=%d j=%d ", i,j);
                     }
-                    if ((!Arrow_Up)&&(j!=0)) {
-                        if ((a[i][j-1]==0)||(a[i][j]==a[i][j-1])) {
-                            Arrow_Up=1;
-                        }
+                }
+                if ((!Arrow_Up)&&(j!=0)) {
+                    if ((a[i][j-1]==0)||(a[i][j]==a[i][j-1])) {
+                        Arrow_Up=1;
+                        printf("Up i=%d j=%d ", i,j);
                     }
-                    if ((!Arrow_Down)&&(j!=3)) {
-                        if ((a[i][j+1]==0)||(a[i][j]==a[i][j+1])) {
-                            Arrow_Down=1;
-                        }
+                }
+                if ((!Arrow_Down)&&(j!=3)) {
+                    if ((a[i][j+1]==0)||(a[i][j]==a[i][j+1])) {
+                        Arrow_Down=1;
+                        printf("Down i=%d j=%d ", i,j);
                     }
                 }
             }
