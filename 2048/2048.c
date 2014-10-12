@@ -1,3 +1,10 @@
+//=========================================================
+//                         2048
+//                    [ CONSOLE VER ]
+// Actual version:                                 0.4 Beta
+// Design and programming:                       Mikle_Bond
+// E-mile:                               Mikle_Bond@mail.ru
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h>
@@ -188,20 +195,22 @@ void first_draw() {
 void slide_line(el_t *a, el_t *b, el_t *c, el_t *d) {
     int i=0, j=0;
     el_t* x[4]={a,b,c,d};
-    for (i=3; i>0; i--) {
-        j=i-1;
-        while (*x[j]==0 && j>=0) j-=1;
-        if (j<0) break;
-        if (*x[i]==*x[j]) {
-            *x[i]+=*x[j];
-            *x[j]=0;
-        } else {
-            if (*x[i]==0) {
+    i=3;
+    while (i>0) {
+        //if (*x[i]!=0) {
+            j=i-1;
+            while (*x[j]==0 && j>=0) j-=1;
+            if (j<0) break;
+            if (*x[i]==*x[j]) {
+                *x[i]+=*x[j];
+                *x[j]=0;
+            } else if (*x[i]==0) {
                 *x[i]=*x[j];
                 *x[j]=0;
+                i+=1;
             }
-            // if (*x[i]!=0) then we will slide x[j] next time.
-        }
+            i-=1;
+        //}
     }
 
 }
@@ -232,8 +241,6 @@ int game_start() {
         do {
             if (getch()==224) {
                 c=getch();
-                GoToXY(0,23);
-                printf("%d %d %d %d ",Arrow_Up, Arrow_Down, Arrow_Left, Arrow_Right);
                 if ((Arrow_Up) && (c==key_up)) break;
                 if ((Arrow_Down) && (c==key_down)) break;
                 if ((Arrow_Left) && (c==key_left)) break;
@@ -275,25 +282,21 @@ int ArrOk(el_t a[][4], int *c) {
                 if ((!Arrow_Left)&&(i!=0)) {
                     if ((a[i-1][j]==0)||(a[i][j]==a[i-1][j])) {
                         Arrow_Left=1;
-                        printf("Left: i=%d j=%d ", i,j);
                     }
                 }
                 if ((!Arrow_Right)&&(i!=3)) {
                     if ((a[i+1][j]==0)||(a[i][j]==a[i+1][j])) {
                         Arrow_Right=1;
-                        printf("Right i=%d j=%d ", i,j);
                     }
                 }
                 if ((!Arrow_Up)&&(j!=0)) {
                     if ((a[i][j-1]==0)||(a[i][j]==a[i][j-1])) {
                         Arrow_Up=1;
-                        printf("Up i=%d j=%d ", i,j);
                     }
                 }
                 if ((!Arrow_Down)&&(j!=3)) {
                     if ((a[i][j+1]==0)||(a[i][j]==a[i][j+1])) {
                         Arrow_Down=1;
-                        printf("Down i=%d j=%d ", i,j);
                     }
                 }
             }
@@ -335,16 +338,10 @@ void GoToXY(int column, int line) {
     coord.Y = line;
 
     // Obtain a handle to the console screen buffer.
-    // (You're just using the standard console, so you can use STD_OUTPUT_HANDLE
-    // in conjunction with the GetStdHandle() to retrieve the handle.)
-    // Note that because it is a standard handle, we don't need to close it.
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    // Finally, call the SetConsoleCursorPosition function.
     if (!SetConsoleCursorPosition(hConsole, coord))
     {
-        // Uh-oh! The function call failed, so you need to handle the error.
-        // You can call GetLastError() to get a more specific error code.
-        // ...
+
     }
 }
