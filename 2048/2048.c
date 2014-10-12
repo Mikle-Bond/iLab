@@ -35,13 +35,18 @@ int Arrow_Down = 1;
 int Arrow_Left = 1;
 int Arrow_Right = 1;
 
+unsigned int LastUsedRand=42;
+unsigned int *RandSeeds;
+
 void logo();
+unsigned int GetRand();
 void Place_Rand(el_t a[][4], int*);
 int game_start();
 int ArrOk(el_t a[][4], int*);
 void GoToXY(int, int);
 
 int main () {
+    RandSeeds=malloc(sizeof(unsigned int)*21);
     logo();
     while (1) {
         game_start();
@@ -311,9 +316,9 @@ int ArrOk(el_t a[][4], int *c) {
 
 void Place_Rand(el_t a[][4], int *c) {
     el_t target;
-    time_t t;
+    LastUsedRand=RandSeeds[(time(NULL)+LastUsedRand)%20];
+    srand((unsigned) LastUsedRand);
     int i=0, j=0;
-    srand((unsigned) time(&t));
     if (rand()%7 == 3) {
         target=4;
     } else {
@@ -327,6 +332,7 @@ void Place_Rand(el_t a[][4], int *c) {
             break;
         }
     }
+    for (i=0; i<(20); i++) RandSeeds[i]=(RandSeeds[rand()%20]+rand())%9000;
     *c+=1;
 }
 
