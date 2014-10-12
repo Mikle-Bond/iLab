@@ -1,7 +1,7 @@
 //=========================================================
 //                         2048
 //                    [ CONSOLE VER ]
-// Actual version:                                 0.4 Beta
+// Actual version:                               0.4.4 Beta
 // Design and programming:                       Mikle_Bond
 // E-mile:                               Mikle_Bond@mail.ru
 
@@ -26,8 +26,8 @@
         // to quit
 #define key_escape  0x1B
         // to make
-#define LBOR_ printf("     ")
-#define START_POS 2
+#define LBOR_ printf("       ")
+#define START_POS 4
 
 typedef unsigned short int el_t;
 int Arrow_Up = 1;
@@ -77,6 +77,7 @@ void print_string(el_t a, el_t b, el_t c, el_t d) {
             break;
         case 1024:
         case 2048:
+        case 4096:
             printf("\xBA %d ", a);
             break;
     }
@@ -101,6 +102,7 @@ void print_string(el_t a, el_t b, el_t c, el_t d) {
             break;
         case 1024:
         case 2048:
+        case 4096:
             printf("\xB3 %d ", b);
             break;
     }
@@ -125,6 +127,7 @@ void print_string(el_t a, el_t b, el_t c, el_t d) {
             break;
         case 1024:
         case 2048:
+        case 4096:
             printf("\xB3 %d ", c);
             break;
     }
@@ -149,6 +152,7 @@ void print_string(el_t a, el_t b, el_t c, el_t d) {
             break;
         case 1024:
         case 2048:
+        case 4096:
             printf("\xB3 %d \xBA\n", d);
             break;
     }
@@ -160,11 +164,25 @@ void draw_small_borders() {
 }
 
 void logo() {
-
+    printf("\n\n\
+                   ﬂ ﬂ€€€€€€€ﬂ€€€€€€€€ﬂ€€€€€€€€ﬂ€€€€€€€€ﬂﬂﬂ ﬂﬂﬂﬂ ﬂﬂﬂﬂ ﬂﬂ ﬂﬂ \n\
+                 ﬂﬂﬂﬂ€€‹‹‹‹ﬂ€ €€‹‹‹‹ﬂ€ €€€€€‹ € €€‹‹‹‹ﬂ€ﬂﬂﬂﬂﬂﬂﬂ ﬂﬂﬂﬂﬂﬂﬂ ﬂ   \n\
+               ﬂﬂﬂ ﬂ€€  €€  € €  €€  € €€€‹   € €  €€  €€ﬂ ﬂﬂ ﬂﬂﬂﬂﬂ ﬂﬂﬂ     \n\
+             ﬂﬂ ﬂ ﬂﬂﬂﬂ€€€‹ ﬂ€ € ‹€€ ﬂ€ €€‹ ﬂ  € €ﬂ    ﬂ€€€ﬂﬂﬂﬂﬂ ﬂﬂﬂﬂﬂ       \n\
+           ﬂ ﬂﬂﬂ ﬂﬂ€€€€‹ ﬂ€€€ €  €€ ‹€ €‹ ﬂ€  € € ‹€€ ‹€€ﬂﬂﬂ ﬂﬂﬂ ﬂﬂ         \n\
+         ﬂﬂﬂﬂ  ﬂﬂ ﬂﬂ€€  €€€€€ € ﬂ€€  € € ﬂﬂﬂ  € €  €€  €ﬂ ﬂﬂﬂ ﬂﬂﬂ           \n\
+       ﬂﬂﬂ ﬂﬂﬂﬂ ﬂﬂﬂ€€€ﬂﬂﬂﬂﬂﬂ€ €€ﬂﬂﬂﬂ€€ €€€€€ﬂﬂ€ €€ﬂﬂﬂﬂ€€€ﬂﬂﬂ ﬂﬂ             \n\
+     ﬂﬂ ﬂﬂﬂ ﬂ ﬂﬂ ﬂﬂﬂ€€€€€€€€€ €€€€€€€€ €€€€€€€€ €€€€€€€ﬂﬂ ﬂﬂ                \n\
+   ﬂﬂﬂﬂﬂﬂﬂ ﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂﬂ ﬂ                  \n\
+");
+GoToXY(26, 15);
+printf("Press <SPACE> to continue");
+while (getch()!=' ');
 }
 
 void first_draw() {
     int i=0, j=0;
+    for (i=0; i<(START_POS-2); i++) printf("\n");
     //=====================================================
     // Top Border
     LBOR_; printf("\xC9");
