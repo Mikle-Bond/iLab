@@ -14,7 +14,7 @@ int qsort_name(const elem*, int* , int, int);
 int qsort_num(const elem*, int*, int);
 
 int main () {
-    int n=0;
+    int n = 0;
     int i=0, j=0;
     char t=0;
     //=====================================================
