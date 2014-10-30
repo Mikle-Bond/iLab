@@ -28,10 +28,10 @@ int main() {
 
     //=====================================================
     // Simple crash-test))
-    /*
+
     stack_t temp = first->next;
     temp->next = NULL;
-    */
+
 
     stack_t *second = {0};
     stack_ctor(&second);
