@@ -8,32 +8,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "stack_prototype.h"
+#include "stack_prototype2.h"
 
 int main() {
     int i=0, n=0, m=0;
     stack_elem t=0;
 
     stack_t first = {0};
-    stack_ctor(&first);
+    //stack_ctor(&first);
     scanf("%d", &n);
     for (i = 0; i < n; i++) {
         scanf("%d", &t);
         stack_push(&first, t);
     }
-
     //=====================================================
     // Example of dump
     StackDump(first, StackOk(first));
 
     //=====================================================
     // Simple crash-test))
-
+    /*
     stack_t temp = first->next;
     temp->next = NULL;
+    */
 
-
-    stack_t *second = {0};
+    stack_t second = {0};
     stack_ctor(&second);
     scanf("%d", &m);
     for (i = 0; i < m; i++) {

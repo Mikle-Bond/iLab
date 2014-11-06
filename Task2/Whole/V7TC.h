@@ -9,7 +9,7 @@ int recheto (unsigned long long *a,
     // Gives the array of primes (a)
     // Returns the length of this array
     //
-    unsigned long long i,t,k,m,n=needed*needed;
+    unsigned long long i,t,k,m,n=needed*20;
     char *b = (char*)calloc(n,sizeof(*b));
     assert(b);
     //=====================================================
@@ -57,11 +57,11 @@ int v7tc () {
     //=====================================================
     // Reading section
     //
-    scanf("%d",&num_of_anwers);
+    scanf("%lu",&num_of_anwers);
     b=calloc(num_of_anwers,sizeof(*b));
 
     for (i=0; i<num_of_anwers; i++) {
-        scanf("%d",&b[i]);
+        scanf("%lu",&b[i]);
         if (b[i]>max_prime) max_prime=b[i];
     }
 

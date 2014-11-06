@@ -11,20 +11,21 @@ int recheto (unsigned long long *a,
     // Gives the array of primes (a)
     // Returns the length of this array
     //
-    unsigned long long i,t,k,m,n=needed*needed;
+    unsigned long long i,t,k,m,n=needed*20;
     char *b = (char*)calloc(n,sizeof(*b));
     assert(b);
     //=====================================================
     // Filling array of numbers
     b[2]=1;
-    i=3;
+    b[3]=1;
+    i=5;
     while (i<=n) {
-            b[i]=1;
+            b[i]=i%3;
             i+=2;
     }
     //=====================================================
     // Crossing not primes from 3 to sqrt(n)
-    i=3;
+    i=5;
     a[1]=2; m=2;
     while ((t=i*i)<=n) {
     //t=i*i because i*2, i*3, etc we've already crossed

@@ -8,7 +8,7 @@ typedef struct karoline {
 } elem;
 
 int compare(char*, char*);
-int qsort_name(const elem*, int* , int, int);
+int qsort_name(elem*, int* , int, int);
 int qsort_num(const elem*, int*, int);
 
 int v5td () {
@@ -29,7 +29,7 @@ int v5td () {
             j+=1;
         }
         a[i].name[j]='\0';
-        scanf("%d",&a[i].num);
+        scanf("%hu",&a[i].num);
         getchar();
     }
     //=====================================================
@@ -61,7 +61,7 @@ int v5td () {
     return 0;
 }
 
-int qsort_name(const elem *a, int *b, int be, int en) {
+int qsort_name(elem *a, int *b, int be, int en) {
     //=====================================================
     // Here is simple Quick Sort, but with two exceptions:
     int i=be-1;
