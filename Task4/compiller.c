@@ -7,6 +7,13 @@
 //                                            by Mikle_Bond
 //
 
+
+//+++++++++++++++++++++++[ NOTE ]++++++++++++++++++++++++++
+// I think to unite ScanForLabels() and ScanForCommands()
+// into one function - ScanFile(), and it will appear soon.
+//+++++++++++++++++++++++[ NOTE ]++++++++++++++++++++++++++
+
+
 //=====================[ INCLUDES ]========================
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +41,7 @@ stack_t main_stack = {0};
 
 int main() {
 
-    system("asm-part.exe");
+    //system("asm-part.exe");
     stack_ctor(&main_stack);
 
     arg_t arg;       // contain arguments
@@ -50,7 +57,6 @@ int main() {
     JumpLabels = ScanForLabels();
     CommandsBegin = ScanForCommands();
     CommandLine = CommandsBegin;
-
     while (1) {
         c = *CommandLine;
         CommandLine += 1;
@@ -78,11 +84,13 @@ int main() {
             }
         case F_OUT_:
             arg = pop();
-            printf("%g", arg);
+            printf("%g\n", arg);
             getchar(); // system("pause");
             push(arg);
+            StackDump(main_stack,StackOk(main_stack));
             break;
         case F_END_:
+            stack_dtor(&main_stack);
             return 0;
         }
     }
@@ -152,9 +160,12 @@ int *ScanForLabels() {
 // it does it wrong...
 int *ScanForCommands() {
     FILE *code = fopen("Prog.ap", "r");
+    //=====================================================
+    // (commline) contains whole input from stream, except
+    // labels.
     int *commline = (int *)malloc(sizeof(int));
-    arg_t arg = 0;
-    lbl_t lbl = 0;
+    arg_t arg = 0;      // Now we really need to use args,
+    lbl_t lbl = 0;      // and don't need labels.
     int counter = 0;
     trns t;
     while (1) {
