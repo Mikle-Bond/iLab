@@ -8,18 +8,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "stack_prototype2.h"
+#include "stack_prototype3.h"
 
 int main() {
     int i=0, n=0, m=0;
     stack_elem t=0;
 
-    stack_t first = {0};
-    //stack_ctor(&first);
+    stack_t first = stack_ctor(sizeof(int));
     scanf("%d", &n);
     for (i = 0; i < n; i++) {
         scanf("%d", &t);
-        stack_push(&first, t);
+        stack_push(&first, &t);
     }
     //=====================================================
     // Example of dump
@@ -32,22 +31,21 @@ int main() {
     temp->next = NULL;
     */
 
-    stack_t second = {0};
-    stack_ctor(&second);
+    stack_t second = stack_ctor(sizeof(int));
     scanf("%d", &m);
     for (i = 0; i < m; i++) {
         scanf("%d", &t);
-        stack_push(&second, t);
+        stack_push(&second, &t);
     }
 
     for (i = 0; i < n; i++) {
-        printf("%d ", stack_pop(&first));
+        printf("%d ", *((int*)stack_pop(&first)));
     }
     printf("\n");
     stack_dtor(&first);
 
     for (i = 0; i < m; i++) {
-        printf("%d ", stack_pop(&second));
+        printf("%d ", *((int*)stack_pop(&second)));
     }
     printf("\n");
     stack_dtor(&second);
