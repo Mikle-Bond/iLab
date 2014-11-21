@@ -8,3 +8,6 @@
 #define F_LABEL_ 7
 #define F_CMP_   8
 #define F_JNZ_   11
+#define F_CALL_  15
+#define F_RET_   16
+#define F_HALT_  55

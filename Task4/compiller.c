@@ -29,10 +29,12 @@ void push(arg_t);
 int ScanFile(com_t **, lbl_t **);
 //========================[ STACK ]========================
 stack_t main_stack = NULL;
+stack_t return_stack = NULL;
 //=========================================================
 
 int main() {
     main_stack = stack_ctor(sizeof(arg_t));
+    return_stack = stack_ctor(sizeof(com_t*));
     //system("asm-part.exe");
 
     arg_t arg;       // contain arguments
@@ -63,6 +65,9 @@ int main() {
         case F_ADD_:
             push(pop()+pop());
             break;
+        case F_CMP_:
+            push(pop()-pop());
+            break;
         case F_MUL_:
             push(pop()*pop());
             break;
@@ -70,10 +75,18 @@ int main() {
             lbl = *((lbl_t*)CommandLine);
             CommandLine = CommandsBegin + lbl;
             break;
+        case F_RET_:
+            CommandLine = *((com_t**)stack_pop(return_stack));
+            break;
+        case F_CALL_:
+            stack_push(return_stack, &CommandLine);
+            CommandLine = CommandsBegin + JumpLabels[*((lbl_t *)CommandLine)];
+            break;
         case F_JNZ_:
             if (pop()) {
                 CommandLine = CommandsBegin + JumpLabels[*((lbl_t *)CommandLine)];
             }
+            break; // <<<---- I HAVE BEEN LOOKING FOR IT FOR A LOOOOOOOONG TIME!!!
         case F_OUT_:
             arg = pop();
             printf("%g\n", arg);
@@ -82,6 +95,9 @@ int main() {
             StackDump(main_stack,StackOk(main_stack));
             break;
         case F_END_:
+            stack_dtor(&main_stack);
+            return 0;
+        case F_HALT_:
             stack_dtor(&main_stack);
             return 0;
         }

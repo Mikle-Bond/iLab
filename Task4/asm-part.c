@@ -70,13 +70,17 @@ int find_cmd(char s[], int *bul, int *arg, FILE *code) {
         return F_OUT_;
     } else if (strcomp(s, "END")) {
         return F_END_;
+    } else if (strcomp(s, "RET")) {
+        return F_RET_;
+    } else if (strcomp(s, "HALT")) {
+        return F_HALT_;
     } else if (strcomp(s, "CMP")) {
         return F_CMP_;
     } else if (strcomp(s, "JUMP")) {
         *bul = 1;
         fscanf(code, "%d", &arg);
         return F_JUMP_;
-    } else if (strcomp(s, "JNZ")) {
+    } else if (strcomp(s, "JNZ") || strcomp(s, "CALL")) {
         *bul = 1;
         char arg_s[100];
         int i = 0;
