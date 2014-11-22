@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+// #define MY_COMPUTER_ 1
 #include "commands.h"
 #include "..\Task3\stack_prototype3.h"
 //=====================[ TYPEDEFS ]========================
@@ -19,17 +20,22 @@ typedef int com_t;
 typedef union transfer_temp{
     double d;
     struct {
-        int i1;
-        int i2;
+        int i[sizeof(arg_t)/sizeof(com_t)];
     };
 } trns;
 //===================[ DECLARATIONS ]======================
 arg_t pop();
+void dumparr(int *);
 void push(arg_t);
 int ScanFile(com_t **, lbl_t **);
-//========================[ STACK ]========================
+int cleanup(com_t **, lbl_t **);
+//======================[ STACK ]==========================
 stack_t main_stack = NULL;
 stack_t return_stack = NULL;
+//====================[ REGISTERS ]========================
+typedef enum registers_names {AX,BX,CX,DX} registers;
+arg_t reg[4] = {0};
+registers register_num;
 //=========================================================
 
 int main() {
@@ -49,18 +55,24 @@ int main() {
     // (CommandLine) is var, as not as (CommandBegins) is.
     ScanFile(&CommandsBegin, &JumpLabels);
     CommandLine = CommandsBegin;
+    DBG dumparr(CommandsBegin);
     // I promise, that I won't change (CommandsBegin) ever!
     while (1) {
         c = *CommandLine;
-        fprintf(stderr, "Alive in main loop. c = %d\n", c); //getchar();
+        DBG fprintf(stderr, "Alive in main loop. c = %d\n", c); //getchar();
         CommandLine += 1;
         switch (c) {
         case F_PUSH_:
-            t.i1 = *(CommandLine);
-            t.i2 = *(CommandLine+1);
+            t.i[0] = *(CommandLine);
+            t.i[1] = *(CommandLine+1);
             arg = t.d;
             CommandLine += sizeof(arg)/sizeof(*CommandLine);
             push(arg);
+            break;
+        case F_PUSHX_:
+            register_num = *(CommandLine);
+            CommandLine += 1;
+            push(reg[register_num]);
             break;
         case F_ADD_:
             push(pop()+pop());
@@ -70,6 +82,11 @@ int main() {
             break;
         case F_MUL_:
             push(pop()*pop());
+            break;
+        case F_POP_:
+            register_num = *(CommandLine);
+            CommandLine += 1;
+            reg[register_num] = pop();
             break;
         case F_JUMP_:
             lbl = *((lbl_t*)CommandLine);
@@ -85,25 +102,32 @@ int main() {
         case F_JNZ_:
             if (pop()) {
                 CommandLine = CommandsBegin + JumpLabels[*((lbl_t *)CommandLine)];
-            }
+            } else CommandLine += 1;
             break; // <<<---- I HAVE BEEN LOOKING FOR IT FOR A LOOOOOOOONG TIME!!!
         case F_OUT_:
             arg = pop();
             printf("%g\n", arg);
             getchar(); // system("pause");
             push(arg);
-            StackDump(main_stack,StackOk(main_stack));
-            dumparr(CommandLine);
+            DBG StackDump(main_stack,StackOk(main_stack));
+            DBG dumparr(CommandLine);
             break;
         case F_END_:
-            stack_dtor(&main_stack);
+            cleanup(&CommandsBegin, &JumpLabels);
             return 0;
         case F_HALT_:
-            stack_dtor(&main_stack);
+            cleanup(&CommandsBegin, &JumpLabels);
             return 0;
         }
     }
     return 0;
+}
+
+int cleanup(com_t **CommandLine, lbl_t **LabelList) {
+    stack_dtor(&main_stack);
+    stack_dtor(&return_stack);
+    free(*CommandLine);
+    free(*LabelList);
 }
 
 void dumparr(int *a) {
@@ -139,7 +163,7 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
             lbl_arr = (lbl_t *)realloc(lbl_arr, (Size_Labels+3)*sizeof(lbl_t));\
         } assert(lbl_arr)
     }
-    FILE *code = fopen("Prog.ap", "r");
+    FILE *code = fopen("D:/Repository_iLab/iLab/Task4/Prog.ap", "r");
     /*----[ SOME ASSERTS ]----*/ {
         assert(code);
         int lll = fgetc(code);
@@ -161,20 +185,17 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
     while (1) {
         com_t c = 0;
         fscanf(code, "%d", &c);
-        fprintf(stderr, "[ SFL ] %d\n",c);
+        DBG fprintf(stderr, "[ SFL ] %d\n",c);
         if (c == F_PUSH_) {
-            //=============================================
-            // At first we expand array, and after that
-            // put the commands.
             assert(commline);
             commline[counter] = c;
             counter += 1;
 
             fscanf(code, "%lf", &arg);
-            fprintf(stderr, "[ arg ]      %g\n", arg);
+            DBG fprintf(stderr, "[ arg ]      %g\n", arg);
             temp.d = arg;
-            commline[counter] = temp.i1;
-            commline[counter+1] = temp.i2;
+            commline[counter] = temp.i[0];
+            commline[counter+1] = temp.i[1];
             counter += sizeof(arg_t)/sizeof(com_t);
         } else if (c == F_END_) {
             //=============================================
@@ -183,10 +204,10 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
             fclose(code);
             *CommandLine = commline;
             *LabelList = lbl_arr;
-            return counter;
+            return counter;/*
             return TEA_CUP_;
             return commline;  /// WTF does it must return?
-            return lbl_arr;
+            return lbl_arr;*/
         } else if (c == F_LABEL_) {
             //=============================================
             // Every label is a number of (unsigned int),
@@ -197,7 +218,11 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
             fgetc(code); // == '\n';
             LBLARR_REALLOC_;
             lbl_arr[lbl] = counter; // <-- all sense here
-        } else if (c == F_JUMP_ || c == F_JNZ_) {
+        } else if (c == F_JUMP_ ||
+                   c == F_JNZ_ ||
+                   c == F_POP_ ||
+                   c == F_PUSHX_ ||
+                   c == F_CALL_) {
             //=============================================
             // All JUMPs have the same structure in file.
             commline[counter] = c;
@@ -207,7 +232,8 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
             counter += sizeof(lbl)/sizeof(com_t);
         } else {
             //=============================================
-            // Here is a place for another functions.
+            // Here is a place for functions without
+            // any argument.
             commline[counter] = c;
             counter += 1;
         }

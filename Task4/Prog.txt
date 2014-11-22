@@ -1,5 +1,3 @@
-FIRST_ADD:
-
 PUSH 5
 PUSH 6
 ADD
@@ -8,31 +6,34 @@ PUSH 1
 PUSH 3
 ADD
 
-MULT:
-
 MUL
 
-TEST:
+PUSH 0
+POP AX
+
+loop:
 
 CALL :MINUS_TWO
 
-PRINT:
-
 OUT
 
-LOOP:
-
 PUSH 1
-JNZ :TEST
+PUSH AX
+ADD
+POP AX
+
+PUSH AX
+PUSH 10
+CMP
+JNZ :loop
 
 HALT
 
 MINUS_TWO:
-
-PUSH 2
-PUSH -1
-MUL
-ADD
+    PUSH 2
+    PUSH -1
+    MUL
+    ADD
 RET
 
 END

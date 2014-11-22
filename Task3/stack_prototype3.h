@@ -34,6 +34,7 @@ typedef stack_head *stack_t;
 //======================[ CHECK ]==========================
 // Scanning whole stack for the corruptions
 int StackOk(const stack_t stack_s) {
+    if (stack_s == NULL) return NO_STACK_;
     stack_ptr stk = stack_s->head;
     //=====================================================
     // (stk) points to the stack
@@ -84,7 +85,9 @@ int StackOk(const stack_t stack_s) {
 // Analyzing (errcode) and giving info about it
 void StackDump(const stack_t stk, int errcode) {
     /* print defines */ {
-    #define DO_STR_PTR_  fprintf(stderr, "       (%4d): [%9d] -> (0x%X)\n", stptr->counter, stptr->element, stptr->next)
+    #ifndef DO_STR_PTR_
+        #define DO_STR_PTR_  fprintf(stderr, "       (%4d): [%9d] -> (0x%X)\n", stptr->counter, stptr->element, stptr->next)
+    #endif // DO_STR_PTR_
     #define DO_HEAD_PTR_ fprintf(stderr, "[DUMP] Start of dumping...\n");\
                          fprintf(stderr, "       Header address: 0x%X\n", stk);\
                          fprintf(stderr, "       Top address: 0x%X\n", stptr);\
@@ -100,7 +103,7 @@ void StackDump(const stack_t stk, int errcode) {
         fprintf(stderr, "---no errors---\n");
         DO_HEAD_PTR_;
         fprintf(stderr, "[DUMP] List of elements:\n");
-        while (stptr != NULL) {
+        while (stptr->next != NULL) {
             DO_STR_PTR_;
             stptr = (stack_ptr)stptr->next;
         }
@@ -253,7 +256,7 @@ stack_t stack_ctor(size_t size_elem) {
 int stack_dtor(stack_t *stack_geted) {
     int errcode = StackOk(*stack_geted);
     if (errcode == TEA_CUP_){
-        while ((*stack_geted)->head != NULL) {
+        while (((*stack_geted)->head)->next != NULL) {
             stack_pop(*stack_geted);
         }
         fprintf(stderr, "[INFO] Working stack was destroyed.");

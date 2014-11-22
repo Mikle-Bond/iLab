@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+// #define MY_COMPUTER_ 1
 #include "commands.h"
 #define LBL_MAX_LEN_ 20
 struct lbls {
@@ -18,7 +19,7 @@ int main () {
     code = fopen("Prog.txt", "r"); assert(code);
     recode = fopen("Prog.ap", "w"); assert(recode);
     fill_lbl(code);
-    char cmd_txt[5] = {'\0'};
+    char cmd_txt[LBL_MAX_LEN_] = {'\0'};
     int cmd_code = 0;
     int strnom = 0, errflag = 0;
     int isarg = 0, arg = 0;
@@ -45,17 +46,17 @@ int main () {
             //=============================================
             // writing assembled code
             fprintf(recode, "%d", cmd_code);
-            fprintf(stdout, "%d", cmd_code);
+            DBG fprintf(stdout, "%d", cmd_code);
             if (isarg) {
                 fprintf(recode, " %d", arg);
-                fprintf(stdout, " %d", arg);
+                DBG fprintf(stdout, " %d", arg);
             }
             fprintf(recode, "\n");
-            fprintf(stdout, "\n");
+            DBG fprintf(stdout, "\n");
             if (cmd_code == F_END_) break;
         }
     } while (fgetc(code) != EOF && cmd_code != F_END_);
-    fclose(code); getchar();
+    fclose(code);
     fclose(recode);
     if (errflag) {
         system("del Prog.ap");
@@ -73,7 +74,6 @@ int fill_lbl(FILE *code) {
         // Is this a label?
         int len = 0;
         while ((str[len] = fgetc(code)) != '\n' && str[len]!=EOF) {
-            fprintf(stderr,"%c",str[len]);
             len+=1;   // len = strlen(str);
         }
         if (str[len-1] == ':') {
@@ -81,7 +81,7 @@ int fill_lbl(FILE *code) {
             int j = 0;
             for (j = 0; j < len; j++) label_list.labels[label_list.counter][j] = str[j];
             label_list.labels[label_list.counter][len-1] = '\0';
-            fprintf(stderr, "[ LBL ] %s\n",label_list.labels[label_list.counter]);
+            DBG fprintf(stderr, "[ LBL ] %s\n",label_list.labels[label_list.counter]);
             label_list.counter += 1;
         }
     }
@@ -95,11 +95,25 @@ int fill_lbl(FILE *code) {
 int find_cmd(char s[], int *bul, int *arg, FILE *code) {
     // is command needs an argument?
     *bul = 0;
-    fprintf(stderr, "[ N E ] %s\n", s);
+    DBG fprintf(stderr, "[ N E ] %s\n", s);
     if (strcomp(s, "PUSH")) {
         *bul = 1;
-        fscanf(code, "%d", arg);
-        return F_PUSH_;
+        if (fscanf(code, "%d", arg)) {
+            return F_PUSH_;
+        } else {
+            if (fscanf(code, "%s", &s[5]) && strcomp(&s[6], "X")){
+                if(s[5] > 'D' || s[5] < 'A') return NO_CMD_;
+                *arg = s[5] - 'A';
+                return F_PUSHX_;
+            } else return NO_CMD_;
+        }
+    } else if (strcomp(s, "POP")) {
+        *bul = 1;
+        if (fscanf(code, "%s", &s[5]) && strcomp(&s[6], "X")){
+            if(s[5] > 'D' || s[5] < 'A') return NO_CMD_;
+            *arg = s[5] - 'A';
+            return F_POP_;
+        } else return NO_CMD_;
     } else if (strcomp(s, "ADD")) {
         return F_ADD_;
     } else if (strcomp(s, "MUL")) {
@@ -136,12 +150,12 @@ int find_cmd(char s[], int *bul, int *arg, FILE *code) {
     } else {
         //=================================================
         // Is this a label?
-        int i = 0;
-        while (s[i]) i+=1;   // i = strlen(s);
-        if (s[i-1] == ':') {
-            *bul = 1;
+        int len = 0;
+        while (s[len]) len+=1;   // len = strlen(s);
+        if (s[len-1] == ':') {
             //=============================================
             // We will call this label by number
+            *bul = 1;
             *arg = label_list.curlbl;
             label_list.curlbl += 1;
             return F_LABEL_;
