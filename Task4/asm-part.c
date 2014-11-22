@@ -138,6 +138,7 @@ int find_cmd(char s[], int *bul, int *arg, FILE *code) {
         int i = 0;
         while(fgetc(code) != ':');
         while((arg_s[i] = fgetc(code)) != '\n') i+=1;
+        ungetc(arg_s[i],code);
         arg_s[i] = '\0'; i = 0;
         while(i < label_list.counter && !strcomp(label_list.labels[i], arg_s)) i+=1;
         if (i == label_list.counter) return NO_CMD_;
