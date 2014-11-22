@@ -76,7 +76,7 @@ int main() {
             CommandLine = CommandsBegin + lbl;
             break;
         case F_RET_:
-            CommandLine = *((com_t**)stack_pop(return_stack));
+            CommandLine = *((com_t**)stack_pop(return_stack))+1;
             break;
         case F_CALL_:
             stack_push(return_stack, &CommandLine);
@@ -93,6 +93,7 @@ int main() {
             getchar(); // system("pause");
             push(arg);
             StackDump(main_stack,StackOk(main_stack));
+            dumparr(CommandLine);
             break;
         case F_END_:
             stack_dtor(&main_stack);
@@ -105,6 +106,13 @@ int main() {
     return 0;
 }
 
+void dumparr(int *a) {
+    while (*a != F_END_) {
+        fprintf(stderr, "[ SFL ] %d\n",*a);
+        fprintf(stderr, "[ arg ]      %g\n", *(arg_t*)a);
+        a++;
+    }
+}
 
 arg_t pop() {
     arg_t arg = *((arg_t *)stack_pop(main_stack));
@@ -132,6 +140,12 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
         } assert(lbl_arr)
     }
     FILE *code = fopen("Prog.ap", "r");
+    /*----[ SOME ASSERTS ]----*/ {
+        assert(code);
+        int lll = fgetc(code);
+        if (lll == EOF) exit(1);
+        ungetc(lll,code);
+    }
     //=====================================================
     // So, we need two arrays and two counters - for
     // commands and for labels, vars to contain them, and
