@@ -10,17 +10,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-// #define MY_COMPUTER_ 1
+#undef MY_COMPUTER_
 #include "commands.h"
 #include "..\Task3\stack_prototype3.h"
 //=====================[ TYPEDEFS ]========================
 typedef double arg_t;
 typedef int lbl_t;
 typedef int com_t;
+#define SizeOffset sizeof(arg_t)/sizeof(com_t)   // Integers in Doubles.
 typedef union transfer_temp{
-    double d;
+    double dbl;
     struct {
-        int i[sizeof(arg_t)/sizeof(com_t)];
+        int itr[SizeOffset];
     };
 } trns;
 //===================[ DECLARATIONS ]======================
@@ -33,8 +34,8 @@ int cleanup(com_t **, lbl_t **);
 stack_t main_stack = NULL;
 stack_t return_stack = NULL;
 //====================[ REGISTERS ]========================
-typedef enum registers_names {AX,BX,CX,DX} registers;
-arg_t reg[4] = {0};
+typedef enum registers_names {AX,BX,CX,DX,NL} registers;
+arg_t reg[5] = {0};
 registers register_num;
 //=========================================================
 
@@ -43,8 +44,9 @@ int main() {
     return_stack = stack_ctor(sizeof(com_t*));
     //system("asm-part.exe");
 
-    arg_t arg;       // contain arguments
-    lbl_t lbl;       // contain labels
+    int i = 0;       // just useful variable
+    arg_t arg;       // contain argument
+    lbl_t lbl;       // contain label
     trns t;          // needed to convert (int) in (double)
     com_t c = 0;     // contain command number
 
@@ -55,7 +57,6 @@ int main() {
     // (CommandLine) is var, as not as (CommandBegins) is.
     ScanFile(&CommandsBegin, &JumpLabels);
     CommandLine = CommandsBegin;
-    DBG dumparr(CommandsBegin);
     // I promise, that I won't change (CommandsBegin) ever!
     while (1) {
         c = *CommandLine;
@@ -63,10 +64,11 @@ int main() {
         CommandLine += 1;
         switch (c) {
         case F_PUSH_:
-            t.i[0] = *(CommandLine);
-            t.i[1] = *(CommandLine+1);
-            arg = t.d;
-            CommandLine += sizeof(arg)/sizeof(*CommandLine);
+            for (i = 0; i < SizeOffset; i++) {
+                t.itr[i] = *(CommandLine);
+                CommandLine += 1;
+            }
+            arg = t.dbl;
             push(arg);
             break;
         case F_PUSHX_:
@@ -103,7 +105,7 @@ int main() {
             if (pop()) {
                 CommandLine = CommandsBegin + JumpLabels[*((lbl_t *)CommandLine)];
             } else CommandLine += 1;
-            break; // <<<---- I HAVE BEEN LOOKING FOR IT FOR A LOOOOOOOONG TIME!!!
+            break;
         case F_OUT_:
             arg = pop();
             printf("%g\n", arg);
@@ -118,7 +120,10 @@ int main() {
         case F_HALT_:
             cleanup(&CommandsBegin, &JumpLabels);
             return 0;
+        default:
+            fprintf(stderr, "Compilation error!!!\n");
         }
+        DBG getchar();
     }
     return 0;
 }
@@ -131,7 +136,9 @@ int cleanup(com_t **CommandLine, lbl_t **LabelList) {
 }
 
 void dumparr(int *a) {
+    int *b = a;
     while (*a != F_END_) {
+        fprintf(stderr, "number %d\n", a-b);
         fprintf(stderr, "[ SFL ] %d\n",*a);
         fprintf(stderr, "[ arg ]      %g\n", *(arg_t*)a);
         a++;
@@ -151,18 +158,6 @@ void push(arg_t arg) {
 // ScanFile() takes two arguments - arrays for commands and
 // for labels, and fills it up.
 int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
-    /*----[ SOME DEFINES ]----*/ {
-    #define COMMLINE_REALLOC_ \
-        if (counter >= Size_Commands) {\
-            Size_Commands += 10;\
-            commline = (com_t *)realloc(commline, (Size_Commands+3)*sizeof(com_t));\
-        } assert(commline)
-    #define LBLARR_REALLOC_ \
-        if (lbl>=Size_Labels) {\
-            Size_Labels += 10;\
-            lbl_arr = (lbl_t *)realloc(lbl_arr, (Size_Labels+3)*sizeof(lbl_t));\
-        } assert(lbl_arr)
-    }
     FILE *code = fopen("D:/Repository_iLab/iLab/Task4/Prog.ap", "r");
     /*----[ SOME ASSERTS ]----*/ {
         assert(code);
@@ -175,31 +170,43 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
     // commands and for labels, vars to contain them, and
     // (temp) - to transfer (double) to (int).
     int counter = 0;
-    int Size_Commands = 10, Size_Labels = 10;
+
+    //=====================================================
+    // First two nums in th file are sizes of arrays. We
+    // count them while assembling.
+    int Size_Commands = 0, Size_Labels = 0;
+    fscanf(code, "%d %d", &Size_Commands, &Size_Labels);
+    fgetc(code); // == '\n';
+    DBG fprintf(stderr, "Sizes: %d, %d\n", Size_Commands, Size_Labels);
     com_t *commline = (com_t *)malloc(Size_Commands*sizeof(com_t));
-    assert(commline);
     lbl_t *lbl_arr = (lbl_t *)malloc(Size_Labels*sizeof(lbl_t));
+    assert(commline); assert(lbl_arr);
+
     lbl_t lbl = 0;
-    arg_t arg = 0;
+    arg_t arg = 0;           // some temp variables
     trns temp;
     while (1) {
         com_t c = 0;
         fscanf(code, "%d", &c);
+        DBG fprintf(stderr, "[ SFL ] counter: %d\n",counter);
         DBG fprintf(stderr, "[ SFL ] %d\n",c);
         if (c == F_PUSH_) {
+            //=============================================
+            // Here is commands with arguments of (arg_t)
             assert(commline);
             commline[counter] = c;
             counter += 1;
-
             fscanf(code, "%lf", &arg);
             DBG fprintf(stderr, "[ arg ]      %g\n", arg);
-            temp.d = arg;
-            commline[counter] = temp.i[0];
-            commline[counter+1] = temp.i[1];
-            counter += sizeof(arg_t)/sizeof(com_t);
+            temp.dbl = arg;
+            int i = 0;
+            for (i = 0; i < SizeOffset; i++) {
+                commline[counter] = temp.itr[i];
+                counter += 1;
+            }
         } else if (c == F_END_) {
             //=============================================
-            // END means end. The end.
+            // The 'END' part closes (code) and returns.
             commline[counter] = c;
             fclose(code);
             *CommandLine = commline;
@@ -213,10 +220,9 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
             // Every label is a number of (unsigned int),
             // so we just remember place of this label
             // into (lbl_arr[lbl]).
-            // We don't record it in (commline).
+            // We don't record labels in (commline).
             fscanf(code, "%d", &lbl);
             fgetc(code); // == '\n';
-            LBLARR_REALLOC_;
             lbl_arr[lbl] = counter; // <-- all sense here
         } else if (c == F_JUMP_ ||
                    c == F_JNZ_ ||
@@ -224,7 +230,7 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
                    c == F_PUSHX_ ||
                    c == F_CALL_) {
             //=============================================
-            // All JUMPs have the same structure in file.
+            // Here is commands with (lbl_t) arguments.
             commline[counter] = c;
             counter += 1;
             fscanf(code, "%d", &lbl);
@@ -232,13 +238,10 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
             counter += sizeof(lbl)/sizeof(com_t);
         } else {
             //=============================================
-            // Here is a place for functions without
+            // Here is a place for commands without
             // any argument.
             commline[counter] = c;
             counter += 1;
         }
-        COMMLINE_REALLOC_;
     }
-    #undef COMMLINE_REALLOC_
-    #undef LBLARR_REALLOC_
 }

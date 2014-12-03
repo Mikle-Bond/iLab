@@ -10,19 +10,28 @@ struct lbls {
     int curlbl;
 } label_list = {0};
 
-int fill_lbl(FILE *);
-int strcomp(const char *, const char *);
-int find_cmd(char *, int *, int *, FILE *);
+int strnom = 0;      // number of string - needs to be global.
+
+int fill_lbl(FILE *);                                 // finds the labels and counts commands.
+int my_strcomp(const char *, const char *);           // compares by first string.
+int find_cmd(char *, int *, int *, FILE *, FILE *);   // returns command and its argument.
 
 int main () {
     FILE *code, *recode;
-    code = fopen("Prog.txt", "r"); assert(code);
-    recode = fopen("Prog.ap", "w"); assert(recode);
-    fill_lbl(code);
-    char cmd_txt[LBL_MAX_LEN_] = {'\0'};
-    int cmd_code = 0;
-    int strnom = 0, errflag = 0;
-    int isarg = 0, arg = 0;
+    code = fopen("Prog.txt", "r"); assert(code);      // source file.
+    recode = fopen("Prog.ap", "w"); assert(recode);   // target file.
+    int Number_Of_Commands = fill_lbl(code);          // needs to be written in the head of (recode).
+    char cmd_txt[LBL_MAX_LEN_] = {'\0'};              // text buffer.
+    int cmd_code = 0;                                 // assembled code of command.
+    int errflag = 0;                                  // problems detector.
+    int isarg = 0, arg = 0;                           // boolean indicator of argument and argument.
+
+    //=====================================================
+    // In head there are numbers of commands and labels
+    fprintf(recode, "%d %d\n", Number_Of_Commands, label_list.counter);
+
+    //=====================================================
+    // Input/output block.
     do {/*
         cmd_txt[0] = '\0';
         cmd_txt[1] = '\0';
@@ -33,7 +42,7 @@ int main () {
         strnom += 1;
         //=================================================
         // check the string for command
-        cmd_code = find_cmd(cmd_txt, &isarg, &arg, code);
+        cmd_code = find_cmd(cmd_txt, &isarg, &arg, code, recode);
         if (cmd_code == NO_CMD_) {
             //=============================================
             // logging errors
@@ -66,73 +75,111 @@ int main () {
 }
 
 //=========================================================
-// Fills the (label_list)
+// Fills the (label_list). Also counts number of commands
+// (especially, skipped strings).
 int fill_lbl(FILE *code) {
+    int Commands_counter = 0;
+    int Last_Was_Func_With_Double_Arg = 0;
     while (!feof(code)) {
-        int str[LBL_MAX_LEN_];
+        int buff = 0;
+        char str[LBL_MAX_LEN_];
+        // Firstly, let's eat some rubbish :)
+        while((buff = fgetc(code)) == ' ' || buff == '\n') printf("I eat '%c'\n", buff);
+        if (buff == EOF) break;
+        ungetc(buff, code);
         //=================================================
-        // Is this a label?
+        // Is there a label?
         int len = 0;
-        while ((str[len] = fgetc(code)) != '\n' && str[len]!=EOF) {
+        while ((buff = fgetc(code)) != '\n' && buff != EOF && buff != ' ') {
+            str[len] = buff;
             len+=1;   // len = strlen(str);
         }
+        str[len] = '\0';
+        DBG printf("%s\n", str);
         if (str[len-1] == ':') {
+            //=============================================
+            // Labels have ':' at the end.
             label_list.labels[label_list.counter] = (char *)calloc(len, sizeof(char));
             int j = 0;
             for (j = 0; j < len; j++) label_list.labels[label_list.counter][j] = str[j];
             label_list.labels[label_list.counter][len-1] = '\0';
             DBG fprintf(stderr, "[ LBL ] %s\n",label_list.labels[label_list.counter]);
             label_list.counter += 1;
+        } else {
+            Commands_counter += 1;
+            if (Last_Was_Func_With_Double_Arg && str[1] != 'X') {
+                Commands_counter += 1;
+            }
+            Last_Was_Func_With_Double_Arg = my_strcomp("PUSH", str);
         }
     }
     label_list.curlbl = 0;
     rewind(code);
-    return 0;
+    return Commands_counter;
 }
 
 //=========================================================
 // returns code of command
-int find_cmd(char s[], int *bul, int *arg, FILE *code) {
+int find_cmd(char s[], int *bul, int *arg, FILE *code, FILE *recode) {
     // is command needs an argument?
     *bul = 0;
     DBG fprintf(stderr, "[ N E ] %s\n", s);
-    if (strcomp(s, "PUSH")) {
+    if (my_strcomp(s+1, "X")) {
+        *bul = 1;
+        if(s[0] > 'D' || s[0] < 'A') return NO_CMD_;
+        *arg = s[0] - 'A';
+        return F_REGISTER_;
+    } else if (my_strcomp(s, "PUSH")) {
         *bul = 1;
         if (fscanf(code, "%d", arg)) {
             return F_PUSH_;
-        } else {
-            if (fscanf(code, "%s", &s[5]) && strcomp(&s[6], "X")){
-                if(s[5] > 'D' || s[5] < 'A') return NO_CMD_;
-                *arg = s[5] - 'A';
+        } else if (fscanf(code, "%s", s)) {
+            int code_temp = find_cmd(s,bul,arg,code,recode);
+            if (code_temp == F_REGISTER_) {
+                // if(s[5] > 'D' || s[5] < 'A') return NO_CMD_;
+                // *arg = s[5] - 'A';
                 return F_PUSHX_;
             } else return NO_CMD_;
         }
-    } else if (strcomp(s, "POP")) {
+    } else if (my_strcomp(s, "POP")) {
+        // [POP] can be as an only command, as a command
+        // with register. We will analyze next word after
+        // [POP], and if there no register, we retell to
+        // main next command.
         *bul = 1;
-        if (fscanf(code, "%s", &s[5]) && strcomp(&s[6], "X")){
-            if(s[5] > 'D' || s[5] < 'A') return NO_CMD_;
-            *arg = s[5] - 'A';
-            return F_POP_;
-        } else return NO_CMD_;
-    } else if (strcomp(s, "ADD")) {
+        int code_temp = NO_CMD_;                      // contain next command.
+        if (fscanf(code, "%s", s)) {
+            code_temp = find_cmd(s,bul,arg,code,recode);
+            if (code_temp == F_REGISTER_) {
+                return F_POP_;
+            }
+        }
+        fprintf(recode, "%d %d\n", F_POP_, 4);
+        DBG fprintf(stdout, "%d", F_POP_);
+        DBG fprintf(stdout, " %d", 4);
+        DBG fprintf(stdout, "\n");
+        strnom += 1;
+
+        return code_temp;
+    } else if (my_strcomp(s, "ADD")) {
         return F_ADD_;
-    } else if (strcomp(s, "MUL")) {
+    } else if (my_strcomp(s, "MUL")) {
         return F_MUL_;
-    } else if (strcomp(s, "OUT")) {
+    } else if (my_strcomp(s, "OUT")) {
         return F_OUT_;
-    } else if (strcomp(s, "END")) {
+    } else if (my_strcomp(s, "END")) {
         return F_END_;
-    } else if (strcomp(s, "RET")) {
+    } else if (my_strcomp(s, "RET")) {
         return F_RET_;
-    } else if (strcomp(s, "HALT")) {
+    } else if (my_strcomp(s, "HALT")) {
         return F_HALT_;
-    } else if (strcomp(s, "CMP")) {
+    } else if (my_strcomp(s, "CMP")) {
         return F_CMP_;
-    } else if (strcomp(s, "JUMP")) {
+    } else if (my_strcomp(s, "JUMP")) {
         *bul = 1;
         fscanf(code, "%d", arg);
         return F_JUMP_;
-    } else if (strcomp(s, "JNZ") || strcomp(s, "CALL")) {
+    } else if (my_strcomp(s, "JNZ") || my_strcomp(s, "CALL")) {
         *bul = 1;
         char arg_s[100];
         int i = 0;
@@ -140,7 +187,7 @@ int find_cmd(char s[], int *bul, int *arg, FILE *code) {
         while((arg_s[i] = fgetc(code)) != '\n') i+=1;
         ungetc(arg_s[i],code);
         arg_s[i] = '\0'; i = 0;
-        while(i < label_list.counter && !strcomp(label_list.labels[i], arg_s)) i+=1;
+        while(i < label_list.counter && !my_strcomp(label_list.labels[i], arg_s)) i+=1;
         if (i == label_list.counter) return NO_CMD_;
         *arg = i;
         if (s[0] == 'J') {
@@ -168,7 +215,7 @@ int find_cmd(char s[], int *bul, int *arg, FILE *code) {
 
 //=========================================================
 // comparing strings
-int strcomp(const char a[], const char b[]) {
+int my_strcomp(const char a[], const char b[]) {
     int i = 0;
     while (a[i] != '\0') {
         if (a[i] != b[i]) return 0;

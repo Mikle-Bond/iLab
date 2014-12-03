@@ -1,12 +1,10 @@
 PUSH 1
-OUT
 PUSH 1
-OUT
+POP BX
 
 loop:
 
 CALL :NEWELEM
-OUT
 
 PUSH 1
 PUSH AX
@@ -17,15 +15,18 @@ PUSH 20
 CMP
 JNZ :loop
 
+OUT
+
 HALT
 
 NEWELEM:
-    POP BX
-    POP CX
     PUSH BX
-    PUSH CX
-    PUSH BX
+    PUSH AX
+    PUSH 1
     ADD
+    MUL
+    OUT
+    POP BX
 RET
 
 END
