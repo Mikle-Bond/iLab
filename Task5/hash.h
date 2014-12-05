@@ -1,3 +1,8 @@
+//=========================================================
+// Hash library for integers.
+//                                             by Mile_Bond
+//
+
 // #include "hash_descriptions.h"
 #include "list_prototype2.h"
 #define SPECILAL_NEW_YEAR_DEFINITION_ 0
@@ -23,12 +28,14 @@ hash_t hash_ctor(hasher_func hasher, size_t size) {
 }
 
 int hash_push(hash_t h, data_t t) {
+    assert(h);
     hasher_func f = h->hasher;
     int key = f(t);
     list_add_first(key[h->hash_table],t);
 }
 
 list_ptr hash_find(hash_t h, data_t t) {
+    assert(h);
     hasher_func f = h->hasher;
     int key = f(t);
     list_ptr result = list_search(key[h->hash_table],t);
@@ -36,6 +43,7 @@ list_ptr hash_find(hash_t h, data_t t) {
 }
 
 int hash_print(hash_t h) {
+    assert(h);
     int i = 0;
     for (i = 0; i < h->size; i++) {
         printf("key = %d:\n", i);
@@ -45,6 +53,7 @@ int hash_print(hash_t h) {
 }
 
 int hash_get(hash_t h, data_t t, data_t *res) {
+    assert(h); assert(res);
     list_ptr result = hash_find(h,t);
     if (result != NULL) {
         *res = result->element;
@@ -54,6 +63,7 @@ int hash_get(hash_t h, data_t t, data_t *res) {
 }
 
 int hash_dtor(hash_t *h) {
+    assert(h); assert(*h);
     hash_t HTD = *h; // Hash To Destroy
     int i = 0;
     for (i = 0; i < HTD->size; i++) {
@@ -61,4 +71,5 @@ int hash_dtor(hash_t *h) {
     }
     free(HTD);
     *h = NULL;
+    return 0;
 }

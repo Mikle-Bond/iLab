@@ -42,7 +42,6 @@ list_t ---> |list_head: |                      .
 */
 
 int ListOk(const list_t lst) {
-    // TODO whole assertion with moving around the list.
     assert(lst); assert(lst->head && lst->tail);
     int i = 0;
     list_ptr current = lst->head;
@@ -102,6 +101,7 @@ list_t list_ctor() {
 }
 
 int list_insert_after(list_ptr chain, list_elem data) {
+    assert(chain);
     list_ptr prev = chain;
     list_ptr next = chain->next;
     list_ptr new_elem = (list_ptr)malloc(sizeof(list_chain));
@@ -116,6 +116,7 @@ int list_insert_after(list_ptr chain, list_elem data) {
 
 
 int list_insert_before(list_ptr chain, list_elem data) {
+    assert(chain);
     list_ptr prev = chain->prev;
     list_ptr next = chain;
     list_ptr new_elem = (list_ptr)malloc(sizeof(list_chain));
