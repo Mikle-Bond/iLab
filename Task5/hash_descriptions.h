@@ -52,7 +52,6 @@ list_t ---> |list_head: |                      .
 //=========================================================
 int ListOk(const list_t lst);
 // Searching for mistakes in the list, assertion if found.
-// !!! not completed.
 
 //=========================================================
 list_t list_ctor();
