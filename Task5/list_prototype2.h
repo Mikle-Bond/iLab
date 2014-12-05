@@ -44,6 +44,42 @@ list_t ---> |list_head: |                      .
 int ListOk(const list_t lst) {
     // TODO whole assertion with moving around the list.
     assert(lst); assert(lst->head && lst->tail);
+    int i = 0;
+    list_ptr current = lst->head;
+    list_ptr next = NULL;
+    //=====================================================
+    // Stage 1. Head analyzing.
+    if (current->prev != NULL || current->element != 0) {
+        fprintf(stderr, "Failed at the start))\n");
+        exit(1);
+    }
+    //=====================================================
+    // Stage 2. Body analyzing.
+    for (i = 0; i < lst->counter; i++) {
+        next = current->next;
+        if (next == NULL) {
+            fprintf(stderr, "End of list was not expected so fast.\n");
+            exit(1);
+        }
+        if (next->prev != current) {
+            fprintf(stderr, "Double links are more safety, when anyone changes them.\n");
+            exit(1);
+        }
+        current = next;
+    }
+    //=====================================================
+    // Stage 3. Tail analyzing.
+    next = current->next; // if everything is OK, (next) == <tail>;
+    if (next->next != NULL || next->element != 0) {
+        fprintf(stderr, "Failed at the end((\n");
+        exit(1);
+    }
+    //=====================================================
+    // Stage 17.5. New Year is soon!!!
+    if (next != lst->tail) {
+        fprintf(stderr, "Everything was OK till the end, \nbut I think it should be the reason \nto remember the end of list...\n");
+        exit(1);
+    }
     return 0;
 }
 
