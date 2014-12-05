@@ -65,6 +65,10 @@ int main () {
             if (cmd_code == F_END_) break;
         }
     } while (fgetc(code) != EOF && cmd_code != F_END_);
+    if (cmd_code != F_END_) {
+        fprintf(stderr, "%d: 'END' was expected, but 'EoF' was found.\n", strnom);
+        errflag = 1;
+    }
     fclose(code);
     fclose(recode);
     if (errflag) {
@@ -79,12 +83,14 @@ int main () {
 // (especially, skipped strings).
 int fill_lbl(FILE *code) {
     int Commands_counter = 0;
-    int Last_Was_Func_With_Double_Arg = 0;
+    int Last_Was_Func_With_Double_Arg = 0; // needed for command counting
     while (!feof(code)) {
         int buff = 0;
         char str[LBL_MAX_LEN_];
         // Firstly, let's eat some rubbish :)
-        while((buff = fgetc(code)) == ' ' || buff == '\n') printf("I eat '%c'\n", buff);
+        while((buff = fgetc(code)) == ' ' || buff == '\n') {
+            DBG printf("I eat '%c'\n", buff);
+        }
         if (buff == EOF) break;
         ungetc(buff, code);
         //=================================================
@@ -121,8 +127,7 @@ int fill_lbl(FILE *code) {
 //=========================================================
 // returns code of command
 int find_cmd(char s[], int *bul, int *arg, FILE *code, FILE *recode) {
-    // is command needs an argument?
-    *bul = 0;
+    *bul = 0; // is command needs an argument?
     DBG fprintf(stderr, "[ N E ] %s\n", s);
     if (my_strcomp(s+1, "X")) {
         *bul = 1;
@@ -142,21 +147,23 @@ int find_cmd(char s[], int *bul, int *arg, FILE *code, FILE *recode) {
             } else return NO_CMD_;
         }
     } else if (my_strcomp(s, "POP")) {
-        // [POP] can be as an only command, as a command
+        // [POP] can be or an only command, or a command
         // with register. We will analyze next word after
         // [POP], and if there no register, we retell to
         // main next command.
         *bul = 1;
-        int code_temp = NO_CMD_;                      // contain next command.
+        int code_temp = NO_CMD_;           // contain next command.
         if (fscanf(code, "%s", s)) {
             code_temp = find_cmd(s,bul,arg,code,recode);
             if (code_temp == F_REGISTER_) {
                 return F_POP_;
             }
         }
-        fprintf(recode, "%d %d\n", F_POP_, 4);
+        // 'else' means, that there were another function,
+        // and we should place F_POP_ before returning.
+        fprintf(recode, "%d %d\n", F_POP_, R_NL_);
         DBG fprintf(stdout, "%d", F_POP_);
-        DBG fprintf(stdout, " %d", 4);
+        DBG fprintf(stdout, " %d", R_NL_);
         DBG fprintf(stdout, "\n");
         strnom += 1;
 

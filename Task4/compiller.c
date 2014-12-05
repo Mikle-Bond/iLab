@@ -45,15 +45,15 @@ int main() {
     //system("asm-part.exe");
 
     int i = 0;       // just useful variable
-    arg_t arg;       // contain argument
-    lbl_t lbl;       // contain label
-    trns t;          // needed to convert (int) in (double)
+    arg_t arg = 0;   // contain argument
+    lbl_t lbl = 0;   // contain label
+    trns t = {0};    // needed to convert (int) in (double)
     com_t c = 0;     // contain command number
 
     //=====================================================
     // To work we need to remember jump points and commands
-    lbl_t *JumpLabels;
-    com_t *CommandLine, *CommandsBegin;
+    lbl_t *JumpLabels = NULL;
+    com_t *CommandLine = NULL, *CommandsBegin = NULL;
     // (CommandLine) is var, as not as (CommandBegins) is.
     ScanFile(&CommandsBegin, &JumpLabels);
     CommandLine = CommandsBegin;
@@ -145,10 +145,15 @@ void dumparr(int *a) {
     }
 }
 
+//=========================================================
+// Returns pop-element from the (main_stack).
 arg_t pop() {
     arg_t arg = *((arg_t *)stack_pop(main_stack));
     return arg;
 }
+
+//=========================================================
+// Pushes element to the (main_stack).
 void push(arg_t arg) {
     stack_push(main_stack, &arg);
 }
@@ -166,9 +171,8 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
         ungetc(lll,code);
     }
     //=====================================================
-    // So, we need two arrays and two counters - for
-    // commands and for labels, vars to contain them, and
-    // (temp) - to transfer (double) to (int).
+    // After some updates there are only one counter for
+    // using it with (commline).
     int counter = 0;
 
     //=====================================================
