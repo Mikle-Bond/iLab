@@ -39,3 +39,5 @@
 #define    R_CX_        102     // CX
 #define    R_DX_        103     // DX
 #define    R_NL_        104     // no argument
+
+#define    S_NEW_LINE_   250    // '\n'

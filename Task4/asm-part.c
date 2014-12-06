@@ -19,7 +19,7 @@ int find_cmd(char *, int *, int *, FILE *, FILE *);   // returns command and its
 int main () {
     FILE *code, *recode;
     code = fopen("Prog.txt", "r"); assert(code);      // source file.
-    recode = fopen("Prog.ap", "w"); assert(recode);   // target file.
+    recode = fopen("Prog.ap", "wb"); assert(recode);  // target file.
     int Number_Of_Commands = fill_lbl(code);          // needs to be written in the head of (recode).
     char cmd_txt[LBL_MAX_LEN_] = {'\0'};              // text buffer.
     int cmd_code = 0;                                 // assembled code of command.
@@ -54,7 +54,7 @@ int main () {
         } else {
             //=============================================
             // writing assembled code
-            fprintf(recode, "%d", cmd_code);
+            fprintf(recode, "%c", cmd_code);
             DBG fprintf(stdout, "%d", cmd_code);
             if (isarg) {
                 fprintf(recode, " %d", arg);
@@ -161,7 +161,7 @@ int find_cmd(char s[], int *bul, int *arg, FILE *code, FILE *recode) {
         }
         // 'else' means, that there were another function,
         // and we should place F_POP_ before returning.
-        fprintf(recode, "%d %d\n", F_POP_, R_NL_);
+        fprintf(recode, "%c %c\n", F_POP_, R_NL_);
         DBG fprintf(stdout, "%d", F_POP_);
         DBG fprintf(stdout, " %d", R_NL_);
         DBG fprintf(stdout, "\n");

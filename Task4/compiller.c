@@ -163,7 +163,7 @@ void push(arg_t arg) {
 // ScanFile() takes two arguments - arrays for commands and
 // for labels, and fills it up.
 int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
-    FILE *code = fopen("D:/Repository_iLab/iLab/Task4/Prog.ap", "r");
+    FILE *code = fopen("D:/Repository_iLab/iLab/Task4/Prog.ap", "rb");
     /*----[ SOME ASSERTS ]----*/ {
         assert(code);
         int lll = fgetc(code);
@@ -191,7 +191,8 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
     trns temp;
     while (1) {
         com_t c = 0;
-        fscanf(code, "%d", &c);
+        // fscanf(code, "%c", &c);
+        c = fgetc(code);
         DBG fprintf(stderr, "[ SFL ] counter: %d\n",counter);
         DBG fprintf(stderr, "[ SFL ] %d\n",c);
         if (c == F_PUSH_) {
@@ -226,7 +227,6 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
             // into (lbl_arr[lbl]).
             // We don't record labels in (commline).
             fscanf(code, "%d", &lbl);
-            fgetc(code); // == '\n';
             lbl_arr[lbl] = counter; // <-- all sense here
         } else if (c == F_JUMP_ ||
                    c == F_JNZ_ ||
@@ -247,5 +247,6 @@ int ScanFile(com_t **CommandLine, lbl_t **LabelList) {
             commline[counter] = c;
             counter += 1;
         }
+        fgetc(code); // == '\n';
     }
 }
