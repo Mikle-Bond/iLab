@@ -215,6 +215,32 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 
+
+
+######################
+# Qt-Creator
+#---------------------
+
+# Qt-es
+/.qmake.cache
+/.qmake.stash
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+Makefile*
+*-build-*
+# QtCreator
+*.autosave
+#QtCtreator Qml
+*.qmlproject.user
+*.qmlproject.user.*
+
+
 ####################
 #User section
 #===================
@@ -248,3 +274,8 @@ pip-log.txt
 *.i*86
 *.x86_64
 *.hex
+
+#Qt trash
+
+*.pri
+*.pro
