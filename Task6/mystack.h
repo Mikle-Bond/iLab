@@ -13,6 +13,7 @@ private:
         push_out,           // push out of range
         no_stack,           // stack NULL pointer
         ngtv_countr,        // counter < 0
+        no_class,           // this == NULL
     };
 public:
     // stack with max_len limit
