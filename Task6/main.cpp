@@ -6,7 +6,7 @@ using namespace std;
 
 void foo (int v)
 {
-    static MyStack glob (10);
+    static MyStack<int> glob (10);
     glob.push(v);
     if (v == 0) glob.toString();
 }
@@ -16,8 +16,8 @@ int main()
 {
     cout << "Enter main ()" << endl;
 
-    MyStack first(10);
-    MyStack *second = &first;
+    MyStack<float> first(10);
+    MyStack<float> *second = &first;
 
     // First fill the stack
     for (int i = 10; i < 80; i += 10)
