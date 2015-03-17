@@ -1,3 +1,5 @@
+#define DBG
+
 #include <iostream>
 #include "mystack.h"
 
@@ -6,7 +8,7 @@ using namespace std;
 
 void foo (int v)
 {
-    static MyStack<int> glob (10);
+    static MyStack<int> glob;
     glob.push(v);
     if (v == 0) glob.toString();
 }
@@ -16,7 +18,7 @@ int main()
 {
     cout << "Enter main ()" << endl;
 
-    MyStack<float> first(10);
+    MyStack<float> first;
     MyStack<float> *second = &first;
 
     // First fill the stack
@@ -48,6 +50,29 @@ int main()
     foo(55);
     foo(41);
     foo(0);
+
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
+    first.pop();
 
     return 0;
 }
