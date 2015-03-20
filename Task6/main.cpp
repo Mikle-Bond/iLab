@@ -10,7 +10,7 @@ void foo (int v)
 {
     static MyStack<int> glob;
     glob.push(v);
-    if (v == 0) glob.toString();
+    if (v == 0) glob.dump();
 }
 
 
@@ -22,10 +22,10 @@ int main()
     MyStack<float> *second = &first;
 
     // First fill the stack
-    for (int i = 10; i < 80; i += 10)
+    for (int i = 10; i < 8000; i += 10)
         first.push(i);
     // Print it
-    first.toString();
+    first.dump();
 
 
     second->pop();
@@ -39,7 +39,7 @@ int main()
     first.push(t);
 
     // Print stack again
-    first.toString();
+    first.dump();
 
     cout << "Hello World!" << endl;
 
