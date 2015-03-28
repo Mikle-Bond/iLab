@@ -51,28 +51,10 @@ int main()
     foo(41);
     foo(0);
 
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
-    first.pop();
+    MyStack<string> str_s(10);
+    string temp = "abcd";
+    str_s.push(temp);
+    str_s.dump();
 
     return 0;
 }
