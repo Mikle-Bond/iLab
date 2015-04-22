@@ -16,6 +16,12 @@ BigInt::~BigInt()
     delete [] data;
 }
 
+void BigInt::is_not_OK (void)
+{
+//    if (this == NULL) throw PtrExc(this);
+//    if (this->size < 0 || this->size > this->max_size)
+//        throw SizeExc(this, this->size);
+}
 
 bool operator == (const BigInt &a, const BigInt &b)
 {
@@ -112,6 +118,7 @@ const BigInt operator - (const BigInt &a, const BigInt &b)
 
 BigInt& BigInt::operator += (const BigInt &b)
 {
+
     int i = 0;
     data_t d = 0;
     data_t t = 0;
@@ -146,6 +153,8 @@ BigInt& BigInt::operator = (const BigInt &b)
     base = b.base;
     max_size = b.max_size;
     size = b.size;
+    delete [] data;
+    data = new data_t [max_size];
     for (int i = 0; i < b.size; ++i)
         data[i] = b.data[i];
     return *this;
@@ -155,11 +164,12 @@ BigInt& BigInt::operator = (const BigInt &b)
 BigInt& BigInt::operator -= (const BigInt &b)
 {
     if (*this < b) {
-        std::cout << "Unsigned only!" << std::endl;
-        std::cout << "Subtraction fault" << std::endl
-                  << std::endl;
-        exit(1);
+        // throw NegResExc (this, b);
     }
+//        std::cout << "Unsigned only!" << std::endl;
+//        std::cout << "Subtraction fault" << std::endl
+//                  << std::endl;
+//        exit(1);
     int i = 0;
     data_t d = 0;
     data_t t = 0;
@@ -205,7 +215,7 @@ std::ostream& operator << (std::ostream &os, BigInt &b)
     for (int i = b.size - 1; i >= 0; --i)
         // printf("%02d",b.data[i]);
         std::cout << (int) b.data[i];
-    std::cout << std::endl;
+//    std::cout << std::endl;
     return os;
 }
 
@@ -231,7 +241,7 @@ const BigInt operator * (const BigInt &a, const BigInt &b)
 }
 
 
-void BigInt::dump ()
+void BigInt::dump ()// throw ()
 {
     for (int i = size-1; i >= 0; --i) {
         std::cout << (int) data[i] << " ";

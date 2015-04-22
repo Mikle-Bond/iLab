@@ -7,6 +7,27 @@
  * Unsigned integers only!
  */
 
+//class BigIntExc
+//{
+//public:
+//    BigIntExc (BigInt *s): source(s) {}
+//    BigInt *getSource () { return source; }
+//protected:
+//    BigInt *source;
+//};
+
+//class NegResExc
+//{
+//public:
+//    NegResult (BigInt *f, BigInt *s):
+//       first(f), second(s) {}
+//    BigInt *getLeft () { return first; }
+//    BigInt *getRight () { return second; }
+//private:
+//    BigInt *first;
+//    BigInt *first;
+//};
+
 class BigInt
 {
 private:
@@ -15,6 +36,7 @@ public:
     BigInt();
     ~BigInt();
     void dump ();
+    void is_not_OK ();
 
     friend bool operator == (const BigInt &a, const BigInt &b);
     friend bool operator <= (const BigInt &a, const BigInt &b);
