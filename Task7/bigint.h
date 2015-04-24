@@ -7,94 +7,63 @@
  * Unsigned integers only!
  */
 
-//class BigIntExc
-//{
-//public:
-//    BigIntExc (BigInt *s): source(s) {}
-//    BigInt *getSource () { return source; }
-//protected:
-//    BigInt *source;
-//};
-
-//class NegResExc
-//{
-//public:
-//    NegResult (BigInt *f, BigInt *s):
-//       first(f), second(s) {}
-//    BigInt *getLeft () { return first; }
-//    BigInt *getRight () { return second; }
-//private:
-//    BigInt *first;
-//    BigInt *first;
-//};
-
 class BigInt
 {
 private:
     typedef char data_t;
 public:
     BigInt();
+    BigInt(const BigInt &other);
+    template <typename T> BigInt(T other);
     ~BigInt();
-    void dump ();
-    void is_not_OK ();
 
+    friend void swap (BigInt &a, BigInt &b);
+
+    void dump ();
+
+    BigInt& operator = (BigInt other);
+    BigInt& operator += (const BigInt &other);
+    BigInt& operator -= (const BigInt &other);
+    BigInt& operator *= (const BigInt &other);
+
+    friend const BigInt operator + (BigInt a, const BigInt &b);
+    friend const BigInt operator - (BigInt a, const BigInt &b);
+    friend const BigInt operator * (BigInt a, const BigInt &b);
+
+    friend std::ostream& operator << (std::ostream &os, const BigInt &b);
+    friend std::istream& operator >> (std::istream &is, BigInt &b);
+
+    friend bool operator < (const BigInt &a, const BigInt &b);
     friend bool operator == (const BigInt &a, const BigInt &b);
+
+    friend bool operator > (const BigInt &a, const BigInt &b);
     friend bool operator <= (const BigInt &a, const BigInt &b);
     friend bool operator >= (const BigInt &a, const BigInt &b);
-    friend bool operator < (const BigInt &a, const BigInt &b);
-    friend bool operator > (const BigInt &a, const BigInt &b);
-    friend const BigInt operator + (const BigInt &a, const BigInt &b);
-    friend const BigInt operator - (const BigInt &a, const BigInt &b);
-    friend const BigInt operator * (const BigInt &a, const BigInt &b);
-    friend std::ostream& operator << (std::ostream &os, BigInt &b);
-
-
-    BigInt& operator += (const BigInt &b);
-    BigInt& operator -= (const BigInt &b);
-    BigInt& operator = (const BigInt &b);
-    template <typename T> BigInt& operator = (const T &b);
+    friend bool operator != (const BigInt &a, const BigInt &b);
 
     operator unsigned () const;
 private:
     // array of the data
     data_t *data;
     // base of notation [10 by default]
-    data_t base;
+    static const data_t base = 10;
     // number of digits
     int size;
     // max number of digits
-    int max_size;
+    static const int max_size = 10000;
 };
 
-/*
+// Conversion constructor
 template <typename T>
-BigInt& operator += (BigInt &a, const T &b)
+BigInt::BigInt(T other)
 {
-    T z = b;
-    data_t d = 0;
-    data_t t = 0;
-    while (z > 0) {
-        t = d + data[size] + z % base;
-        d = t / base;
-        data[size] = t % base;
-        z /= base;
+    this->data = new data_t [max_size];
+    this->size = 0;
+    while (other > 0) {
+        data[size] = other % base;
+        other /= base;
         ++size;
     }
-    return a;
-}
-*/
-
-template <typename T>
-BigInt& BigInt::operator = (const T &b)
-{
-    size = 0;
-    T z = b;
-    while (z > 0) {
-        data[size] = z % base;
-        z /= base;
-        ++size;
-    }
-    return *this;
 }
 
-#endif // BIGINT_H
+#endif

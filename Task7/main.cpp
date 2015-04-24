@@ -6,39 +6,30 @@ BigInt sum ()
 {
     BigInt result;
     BigInt a, b;
-//    BigInt temp;
-
 
     a = 5;
     b = 6;
 
-//    std::cout << "Before: " << a << " " << b << " " << result << std::endl;
+    result = a + b;
 
-    return ((result += a) += b);
-
-//    std::cout << "After: " << a << " " << b << " " << result << std::endl;
-
-//    temp.dump();
-
-//    return temp;
+    return result;
 }
 
 int main()
 
 {
-    BigInt test;
-//    a = 1;
-//    for (int i = 1; i <= 200; ++i) {
-//        b = i;
-//        a = a * b;
-//    }
+    BigInt a;
+    BigInt b;
 
-//    std::cout << a << std::endl;
-    test = sum ();
+    while (1) {
+        std::cin >> a;
+        std::cout << a << std::endl;
 
-    test.dump();
+        std::cin >> b;
+        std::cout << b << std::endl;
 
-    std::cout << test << std::endl;
+        std::cout << a * b << std::endl;
+    }
 
     return 0;
 }
