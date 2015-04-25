@@ -218,7 +218,7 @@ std::ostream& operator << (std::ostream &os, const BigInt &b)
     for (int i = b.size - 1; i >= 0; --i)
         printf("%d",b.data[i]);
         // std::cout << (int) b.data[i];
-    std::cout << std::endl;
+//    std::cout << std::endl;
     return os;
 }
 

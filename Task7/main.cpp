@@ -18,17 +18,13 @@ BigInt sum ()
 int main()
 
 {
-    BigInt a;
     BigInt b;
 
     while (1) {
-        std::cin >> a;
-        std::cout << a << std::endl;
-
         std::cin >> b;
         std::cout << b << std::endl;
 
-        std::cout << a * b << std::endl;
+        std::cout << 5 * b << std::endl;
     }
 
     return 0;

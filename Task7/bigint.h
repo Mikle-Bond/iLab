@@ -41,7 +41,7 @@ public:
     friend bool operator >= (const BigInt &a, const BigInt &b);
     friend bool operator != (const BigInt &a, const BigInt &b);
 
-    operator unsigned () const;
+    explicit operator unsigned () const;
 private:
     // array of the data
     data_t *data;
